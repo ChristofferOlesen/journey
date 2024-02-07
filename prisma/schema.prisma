@@ -2,14 +2,14 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 datasource db {
-  provider     = "mysql"
-  url          = env("DATABASE_URL")
-  relationMode = "prisma"
+    provider     = "mysql"
+    url          = env("DATABASE_URL")
+    relationMode = "prisma"
 }
 
 generator client {
-  provider = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
+    provider        = "prisma-client-js"
+    previewFeatures = ["driverAdapters"]
 }
 
 model Post {
@@ -56,14 +56,23 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
+    id            String     @id @default(cuid())
     name          String?
-    email         String?   @unique
+    email         String?    @unique
     emailVerified DateTime?
     image         String?
     accounts      Account[]
     sessions      Session[]
     posts         Post[]
+    roleId        String?
+    // userPreference   UserPreference? @relation(fields: [userPreferenceId], references: [id])
+    // userPreferenceId String          @unique
+    role          Role?      @relation(fields: [roleId], references: [id])
+    customers     Customer[]
+    tasks         Task[]
+    chatNotes     ChatNote[]
+
+    @@index([roleId])
 }
 
 model VerificationToken {
@@ -72,4 +81,130 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+// We need a table or Role should be given to each user and controle the access the user has. User, Admin.
+
+// We need a table for the customers. A user should be linked to a customer/business. This will allow the user to invite other users that work for the same company.
+
+// We need a table for sales stages that include: name of the same stage, the stage number (is it the first, second, thrird stage, etc.), and whether it's an active stage, the percentage of completion given to the specific stage.
+
+// We need a table for tasks/deliverables. Each task should be associated to a stage and linked to the a user (responsible). We need the ability to indicate whether the task is completed or not and the type of task. 
+
+// We need a table for TaskTypes. Each task type should operate in a certain way based on a linked TaskType feature: information, calendar, schedule call, tips, question.
+
+// Do we need a table for TaskType features?
+
+// We need a table for Notes/comments. These notes should be linked to either a task.
+
+// We need a table for files/documents that can be uploaded by the user. The table should link to a user, task, salesstate, and possibly comment.
+
+// We need a ChatNotes table. All chat messages should be linked to a user and customer.
+
+// We need a UserPreference table for all userpreferences
+
+// model UserPreference {
+//     id           String  @id @default(cuid())
+//     emailUpdates Boolean
+//     User         User?
+// }
+
+model Role {
+    id          String  @id @default(cuid())
+    name        String  @unique
+    description String?
+    users       User[]
+
+    @@index([name])
+    @@index([id])
+}
+
+model Customer {
+    id          String       @id @default(cuid())
+    name        String
+    users       User[]
+    salesStages SalesStage[]
+    documents   Document[]
+    chatNotes   ChatNote[]
+
+    @@index([name])
+}
+
+model SalesStage {
+    id          String     @id @default(cuid())
+    name        String
+    stageNumber Int
+    isActive    Boolean    @default(false)
+    completion  Float
+    customer    Customer   @relation(fields: [customerId], references: [id])
+    customerId  String
+    tasks       Task[]
+    document    Document[]
+
+    @@index([customerId])
+}
+
+model Task {
+    id           String     @id @default(cuid())
+    description  String
+    isCompleted  Boolean    @default(false)
+    type         TaskType   @relation(fields: [typeId], references: [id])
+    typeId       String
+    salesStage   SalesStage @relation(fields: [salesStageId], references: [id])
+    salesStageId String
+    assignedTo   User       @relation(fields: [assignedToId], references: [id])
+    assignedToId String
+    notes        Note[]
+    document     Document[]
+
+    @@index([typeId])
+    @@index([salesStageId])
+    @@index([assignedToId])
+}
+
+model TaskType {
+    id          String  @id @default(cuid())
+    name        String  @unique
+    description String?
+    tasks       Task[]
+}
+
+model Note {
+    id        String   @id @default(cuid())
+    content   String
+    task      Task     @relation(fields: [taskId], references: [id])
+    taskId    String
+    createdAt DateTime @default(now())
+
+    @@index([taskId])
+}
+
+model Document {
+    id           String      @id @default(cuid())
+    name         String
+    url          String
+    customer     Customer    @relation(fields: [customerId], references: [id])
+    customerId   String
+    salesStage   SalesStage? @relation(fields: [salesStageId], references: [id])
+    salesStageId String?
+    task         Task?       @relation(fields: [taskId], references: [id])
+    taskId       String?
+    createdAt    DateTime    @default(now())
+
+    @@index([customerId])
+    @@index([salesStageId])
+    @@index([taskId])
+}
+
+model ChatNote {
+    id          String   @id @default(cuid())
+    content     String
+    customer    Customer @relation(fields: [customerId], references: [id])
+    customerId  String
+    createdBy   User     @relation(fields: [createdById], references: [id])
+    createdById String
+    createdAt   DateTime @default(now())
+
+    @@index([customerId])
+    @@index([createdById])
 }
