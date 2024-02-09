@@ -1,5 +1,7 @@
 import { unstable_noStore as noStore } from "next/cache";
 import Link from "next/link";
+import { Button } from "../components/ui/button"
+
 
 import { CreatePost } from "~/app/_components/create-post";
 import { getServerAuthSession } from "~/server/auth";
@@ -11,22 +13,23 @@ export default async function Home() {
   const session = await getServerAuthSession();
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#F8FAFC] to-[#F1F5F9] text-slate-800">
       <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
         <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
           Customer <span className="text-[hsl(280,100%,70%)]">Journey</span>
         </h1>
         <div className="flex flex-col items-center gap-2">
           <div className="flex flex-col items-center justify-center gap-4">
-            <p className="text-center text-2xl text-white">
+            <p className="text-center text-2xl text-slate-800">
               {session ? (<span>Logged in as {session.user?.name}</span>) : (<span>{hello ? hello.greeting : "Loading..."}</span>)}
             </p>
-            <Link
-              href={session ? "/api/auth/signout" : "/api/auth/signin"}
-              className="rounded-full bg-white/10 px-10 py-3 font-semibold no-underline transition hover:bg-white/20"
-            >
-              {session ? "Sign out" : "Sign in"}
-            </Link>
+            <Button asChild variant="outline">
+              <Link
+                href={session ? "/api/auth/signout" : "/api/auth/signin"}
+              >
+                {session ? "Sign out" : "Sign in with Github"}
+              </Link>
+            </Button>
           </div>
         </div>
 
@@ -79,7 +82,12 @@ async function Posts() {
 
   return (
     <div className="w-full max-w-xs">
-      {data?.map((post) => (<div key={post.id}>{post.name} - Created at {post.createdAt.toString()}</div>))}
+      {data?.map((post) => (
+        <div key={post.id} className="mb-10" >
+          <div>{post.name} </div>
+          <div>Created: {post.createdAt.toLocaleString()}</div>
+        </div>
+        ))}
     </div>
   );
 }
