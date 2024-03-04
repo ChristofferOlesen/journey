@@ -2,10 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Button } from "../../components/ui/button"
-import { Input } from "../../components/ui/input"
-
-
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
 import { api } from "~/trpc/react";
 
 export function CreatePost() {
@@ -34,11 +32,7 @@ export function CreatePost() {
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
-        <Button
-          type="submit"
-          variant="outline"
-          disabled={createPost.isLoading}
-        >
+        <Button type="submit" variant="outline" disabled={createPost.isLoading}>
           {createPost.isLoading ? "Submitting..." : "Submit"}
         </Button>
       </form>
