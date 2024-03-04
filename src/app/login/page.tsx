@@ -23,7 +23,7 @@ export default async function Login() {
               <div>Welcome! Please sign in to use the app.</div>
             </div>
             <Button asChild variant="outline">
-              <Link href="/api/auth/signin">"Sign in with Github"</Link>
+              <Link href="/api/auth/signin">Sign in with Github</Link>
             </Button>
           </div>
         </div>
