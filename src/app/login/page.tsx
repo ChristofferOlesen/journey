@@ -2,7 +2,6 @@ import { unstable_noStore as noStore } from "next/cache";
 import Link from "next/link";
 import { Button } from "../../components/ui/button";
 import { getServerAuthSession } from "~/server/auth";
-import { api } from "~/trpc/server";
 import { redirect } from "next/navigation";
 
 export default async function Login() {
@@ -11,9 +10,6 @@ export default async function Login() {
   if (session?.user) {
     redirect("/dashboard");
   }
-  const hello = await api.post.hello.query({
-    text: "Please sign in to use the app.",
-  });
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-slate-50 to-slate-900 text-slate-800">
